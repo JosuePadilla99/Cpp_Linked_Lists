@@ -19,11 +19,12 @@ Node* List::getTailPtr() const{
 
 void List::insert(int value){  
     try{
-        Node* newNode = new Node(value); //allocate memory to the heap for a new node
+        Node* newNode = new Node(value); // Allocate memory to the heap for a new node
         Node* head = getHeadPtr();
         Node* tail = getTailPtr();
         Node* current;
-        //need to check to see if the list is empty. If it is, we will set the head and tail ptr to the new node
+
+        // Need to check to see if the list is empty. If it is, we will set the head and tail ptr to the new node
         if(headPtr == nullptr){
             headPtr = newNode;
             tailPtr = newNode;
@@ -42,7 +43,7 @@ void List::insert(int value){
             -setting the pointer for the next node from the new node to null as this is the end of the list*/
             current -> setNextPtr(newNode); 
             newNode -> setPrevPtr(current); 
-            current -> setPrevPtr(tail); \
+            current -> setPrevPtr(tail); 
             newNode -> setNextPtr(nullptr);
 
         }
@@ -62,6 +63,19 @@ void List::insertAtIndex(int data, int index){
     std::cout << "List before adding node is: " << std::endl;
     printForward();
     std::cout << std::endl;
+    
+     // If user wants to add node at the beginning, ensuring we add the new node to the beginning of the list
+    if(index == 1){
+        newNode->setPrevPtr(nullptr);
+        newNode->setNextPtr(headPtr);
+        headPtr->setPrevPtr(newNode);
+        headPtr = newNode;
+        
+        std::cout << "Successfully added node at index: " << index << std::endl;
+        printForward();
+        return;
+
+    }
 
     //looping through getting the next pointer until we reach the index or node we want to access
     current = head;
@@ -72,7 +86,7 @@ void List::insertAtIndex(int data, int index){
         i++;
     }
 
-    //if the node we want to access is not null, we then insert it in between
+    //if the node we want to access is not null, we then insert it in between the current and previous node
     if(current != nullptr){
         newNode -> setNextPtr(current ->getNextPtr());
         newNode -> setPrevPtr(current);
@@ -91,80 +105,57 @@ void List::deleteAtIndex(int index){
     Node* next;
     Node* previous;
     Node* current;
-    //int counter{0};
     int i{1};
-
+    
+    // Deleting node at index 1 if user wants to delete the first node in the list
     current = head;
-    if(index == 0){
-        head = current->getNextPtr();
-        if(head != nullptr){
-            head->setPrevPtr(nullptr);
-        }
-    }
+    if(index == 1){
+        headPtr = headPtr->getNextPtr();
+        headPtr->setPrevPtr(nullptr);
+        
+        delete current;
+        std::cout << "Successfully deleted node at index: " << index << std::endl;
+        printForward();
+        return;
+    } 
 
-    while(i <= index - 1){
+    // Looping through till we reach out index value
+    while(i <= index){ 
         current = current->getNextPtr();
         i ++;
     }
-
+    
+    // getting the previous pointer of the current node and setting its next to the next of curren to "skip" current
     previous = current->getPrevPtr();
     if(previous != nullptr){
         previous->setNextPtr(current->getNextPtr());
     }
-
+    
+    // getting next node of current and setting its previous pointer to that of previous to "skip" current node
     next = current->getNextPtr();
     if(next != nullptr){
         next->setPrevPtr(previous);
     }
 
+    delete current;
+
     std::cout << "Successfully deleted node at index: " << index << std::endl;
     printForward();
-    // while(head->getNextPtr() != nullptr){
-    //     std::cout << "Test print: " << head->getData() << std::endl;
-    //     head = head->getNextPtr();
-    // }
-    
-
-    // current = head; 
-    // we can set this but we need to ensure that we relink head with the list
-    /* We are actually deleting the pointer but when we do, we are also freeing up memory from the rest of the list
-    we need to relink the list back together when we remove the node to delete. This is b/c we are setting 
-    current to the head pointer, then using this to traverse through the list and then freeing current.*/
-
-    // current = head;
-    // if(headPtr != nullptr){
-    //     while(current->getNextPtr() != nullptr){
-    //         current = current->getNextPtr();
-    //         counter ++;
-    //     }
-    // }
-
-    // std::cout << "Length of the list is: " << counter << std::endl;
-    
-    // for(int i{0}; i < index; i++){
-    //     current = current->getNextPtr();
-    //     if((i == index - 1) && (current->getNextPtr() != nullptr)){
-    //         std::cout << "TEST ONE" << std::endl;
-    //         previous = current->getPrevPtr();
-    //         previous->setNextPtr(current->getNextPtr());
-    //         next = current->getNextPtr();
-    //         next->setPrevPtr(current->getPrevPtr());
-    //         std::cout << "TEST TWO" << std::endl;
-    //         break;
-    //     }
-    // }
     
 }
 void List::readItem(int index){
     Node* head = getHeadPtr();
     Node* current;
     int i{1};
-
+   
+    // Looping through till we hit the index we want to read from
     current = head;
     while(i <= index){
         current = current->getNextPtr();
         i ++;
     }
+
+    // Printing out the value of the index as long as the node is not null
     if(current != nullptr){
         std::cout << "Value of node " << index << " is: " << current->getData() << std::endl; 
     }
@@ -181,7 +172,7 @@ void List::reverseList(){
         current->setPrevPtr(nextNode); //swapping the previous pointer to the next pointer
 
         prevNode = current;
-        current = nextNode; //this is crucial so we can now have the value of what was the next node before swapping pointers 
+        current = nextNode; //this is crucial so we can now have the value of what was the next node for swapping pointers 
     }
 
     //swapping the head and tail pointers to finish the swap where the prevNode is equal to current or the tail
@@ -195,11 +186,13 @@ void List::reverseList(){
 
 void List::printForward(){
     Node* current = getHeadPtr();
-
+    
+    // Checking to ensure list is not empty
     if(!current){
         std::cout << "Head is null" << std::endl;
     }
-
+   
+    // Looping through and printing out non zero values
     while(current){
         if(current->getData() != 0){
             std::cout << "Value of node is: " << current->getData() << ", ";
@@ -212,14 +205,16 @@ void List::printBackward(){
     Node* head = getHeadPtr();
     Node* end;
    
+    // getting the tail or end of the list to use in the next loop
     end = head;
     while(end->getNextPtr() != nullptr){
         end = end->getNextPtr();
     }
     
+    // Using our end pointer to then loop through and print the previous value of the tail or end of our linked list
     while(end != nullptr){
         if(end->getData() != 0){
-            std::cout << "Value of node printed backwards is: " << end->getData() << std::endl;
+            std::cout << "Value of node printed backwards is: " << end->getData() << ",";
         }
         end = end->getPrevPtr();
     }
